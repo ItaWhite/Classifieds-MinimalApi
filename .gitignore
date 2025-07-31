@@ -1,0 +1,23 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+.idea/
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.Classifieds.MinimalApi.iml
+/modules.xml
+# Editor-based HTTP Client requests
+/*.http
+/httpRequests/
+# Build artifacts
+bin/
+obj/
+# Configuration files
+appsettings.Development.json
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Local DB or test files
+*.db
+*.sqlite
