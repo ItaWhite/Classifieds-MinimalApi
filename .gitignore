@@ -7,8 +7,9 @@
 /projectSettingsUpdater.xml
 /.idea.Classifieds.MinimalApi.iml
 /modules.xml
+*.user
 # Editor-based HTTP Client requests
-/*.http
+*.http
 /httpRequests/
 # Build artifacts
 bin/
