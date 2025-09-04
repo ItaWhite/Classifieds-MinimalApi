@@ -11,7 +11,7 @@ public class TokenGenerator
 
     public TokenGenerator(IConfiguration config) => _config = config;
     
-    public string GenerateToken(string login, string role)
+    public string GenerateToken(int id, string role)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]).ToArray();
@@ -19,7 +19,7 @@ public class TokenGenerator
         var claims = new List<Claim>
         {
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new (JwtRegisteredClaimNames.Sub, login),
+            new (JwtRegisteredClaimNames.Sub, id.ToString()),
             new (ClaimTypes.Role, role)
         };
 

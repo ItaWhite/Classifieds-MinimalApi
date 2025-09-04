@@ -5,7 +5,7 @@ namespace Classifieds.MinimalApi.Mapping;
 
 public static class AdMapping
 {
-    public static Ad ToEntity(this CreateAdDto dto)
+    public static Ad ToEntity(this CreateAdDto dto, int userId)
     {
         return new Ad
         {
@@ -13,11 +13,12 @@ public static class AdMapping
             CategoryId = dto.CategoryId,
             Description = dto.Description,
             Price = dto.Price,
-            Date = dto.Date
+            Date = dto.Date,
+            UserId = userId
         };
     }
 
-    public static Ad ToEntity(this UpdateAdDto dto, int id)
+    public static Ad ToEntity(this UpdateAdDto dto, int id, int userId)
     {
         return new Ad
         {
@@ -26,7 +27,8 @@ public static class AdMapping
             CategoryId = dto.CategoryId,
             Description = dto.Description,
             Price = dto.Price,
-            Date = dto.Date
+            Date = dto.Date,
+            UserId = userId
         };
     }
 
@@ -38,7 +40,8 @@ public static class AdMapping
             ad.Description,
             ad.Category.Name,
             ad.Price,
-            ad.Date);
+            ad.Date,
+            ad.User.Name);
     }
 
     public static AdDetailsDto ToDetailsDto(this Ad ad)
@@ -49,6 +52,7 @@ public static class AdMapping
             ad.Description,
             ad.CategoryId,
             ad.Price,
-            ad.Date);
+            ad.Date,
+            ad.UserId);
     }
 }

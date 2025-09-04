@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Classifieds.MinimalApi.Auth;
 using Classifieds.MinimalApi.Data;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("PostgreSqlConnection");
 builder.Services.AddNpgsql<ClassifiedsContext>(connectionString);
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters

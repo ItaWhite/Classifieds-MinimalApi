@@ -31,7 +31,7 @@ public static class AuthEndpoints
             if (user is null || !PasswordHasher.Verify(loginDto.Password, user.PasswordHash)) 
                 return Results.Unauthorized();
     
-            var token = tokenGenerator.GenerateToken(loginDto.Login, user.Role.Name);
+            var token = tokenGenerator.GenerateToken(user.Id, user.Role.Name);
 
             return Results.Ok(new
             {

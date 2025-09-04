@@ -6,4 +6,5 @@ public record AdDetailsDto(
     string Description, 
     int CategoryId, 
     decimal Price, 
-    DateOnly Date);
+    DateOnly Date,
+    int UserId);

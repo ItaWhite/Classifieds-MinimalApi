@@ -6,4 +6,5 @@ public record AdSummaryDto(
     string Description, 
     string Category, 
     decimal Price, 
-    DateOnly Date);
+    DateOnly Date,
+    string User);

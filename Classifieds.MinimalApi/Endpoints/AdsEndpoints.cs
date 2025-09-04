@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Classifieds.MinimalApi.Data;
 using Classifieds.MinimalApi.Dtos;
 using Classifieds.MinimalApi.Entities;
@@ -18,8 +19,8 @@ public static class AdsEndpoints
         // GET    /ads
         app.MapGet("ads", async (ClassifiedsContext dbContext) =>
         {
-            var result = await dbContext.Ads.Include(ad => ad.Category).Select(ad => ad.ToSummaryDto())
-                .AsNoTracking().ToListAsync();
+            var result = await dbContext.Ads.Include(ad => ad.Category).Include(ad => ad.User)
+                .Select(ad => ad.ToSummaryDto()).AsNoTracking().ToListAsync();
             
             return Results.Ok(result);
         });
@@ -33,35 +34,45 @@ public static class AdsEndpoints
         }).WithName(GetAdvertisementEndpointName);
 
         // POST   /ads
-        app.MapPost("ads", async (CreateAdDto newAdDto, ClassifiedsContext dbContext) =>
+        app.MapPost("ads", async (CreateAdDto newAdDto, ClassifiedsContext dbContext, HttpContext httpContext) =>
         {
-            Ad ad = newAdDto.ToEntity();
+            int userId = int.Parse(httpContext.User.FindFirst(JwtRegisteredClaimNames.Sub).Value);
+            Ad ad = newAdDto.ToEntity(userId);
             await dbContext.Ads.AddAsync(ad);
             await dbContext.SaveChangesAsync();
             
             return Results.CreatedAtRoute(GetAdvertisementEndpointName, new { id = ad.Id }, ad.ToDetailsDto());
-        }).WithParameterValidation();
+        }).RequireAuthorization().WithParameterValidation();
 
         // PUT    /ads/{id}
-        app.MapPut("ads/{id}", async (int id, UpdateAdDto updatedAdDto, ClassifiedsContext dbContext) =>
+        app.MapPut("ads/{id}", async (int id, UpdateAdDto updatedAdDto, ClassifiedsContext dbContext, HttpContext httpContext) =>
         {
             var existingAd = await dbContext.Ads.FindAsync(id);
-            
             if (existingAd is null) return Results.NotFound();
+
+            int userId = int.Parse(httpContext.User.FindFirst(JwtRegisteredClaimNames.Sub).Value);
+            if (userId != existingAd.UserId && !httpContext.User.IsInRole("Admin")) return Results.Forbid();
             
-            dbContext.Ads.Entry(existingAd).CurrentValues.SetValues(updatedAdDto.ToEntity(id));
+            dbContext.Ads.Entry(existingAd).CurrentValues.SetValues(updatedAdDto.ToEntity(id, existingAd.UserId));
             await dbContext.SaveChangesAsync();
             
             return Results.NoContent();
-        }).WithParameterValidation();
+        }).RequireAuthorization().WithParameterValidation();
 
         // DELETE /ads/{id}
-        app.MapDelete("ads/{id}", async (int id, ClassifiedsContext dbContext) =>
+        app.MapDelete("ads/{id}", async (int id, ClassifiedsContext dbContext, HttpContext httpContext) =>
         {
-            await dbContext.Ads.Where(ad => ad.Id == id).ExecuteDeleteAsync();
+            var ad = await dbContext.Ads.FindAsync(id);
+            if (ad is null) return Results.NotFound();
+            
+            var userId = int.Parse(httpContext.User.FindFirst(JwtRegisteredClaimNames.Sub).Value);
+            if (userId != ad.UserId && !httpContext.User.IsInRole("Admin")) return Results.Forbid();
+            
+            dbContext.Ads.Remove(ad);
+            await dbContext.SaveChangesAsync();
             
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
         
         return app;
     }
